@@ -1,4 +1,4 @@
-package com.example.workout_tracker.screens
+package com.example.workout_tracker.view
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -40,10 +40,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.workout_tracker.data.APIRequestState
+import com.example.workout_tracker.utils.ErrorMessages.ERROR_FETCHING_EXERCISES_FOR_DATE
+import com.example.workout_tracker.utils.ErrorMessages.ERROR_FETCHING_EXERCISES_FOR_SPLIT_DAY
+import com.example.workout_tracker.utils.ErrorMessages.ERROR_FETCHING_RECENT_EXERCISES
+import com.example.workout_tracker.utils.ErrorMessages.ERROR_SAVING_WORKOUT
+import com.example.workout_tracker.utils.ErrorMessages.NO_EXERCISES_FOUND_FOR_DATE
+import com.example.workout_tracker.utils.ErrorMessages.NO_EXERCISES_FOUND_FOR_SPLIT_DAY
+import com.example.workout_tracker.utils.ErrorMessages.NO_RECENT_WORKOUTS_FOUND_FOR_EXERCISE
+import com.example.workout_tracker.utils.ErrorMessages.WORKOUT_SUBMISSION_SUCCESSFUL
 import com.example.workout_tracker.utils.ExerciseSetUserInput
-import com.example.workout_tracker.utils.OverlayMenuScreenLoading
-import com.example.workout_tracker.utils.OverlayMenuScreenWithPopupScreen
+import com.example.workout_tracker.utils.OverlayPopUpScreenLoading
+import com.example.workout_tracker.utils.OverlayPopUpScreen
 import com.example.workout_tracker.viewmodel.TrackerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,8 +65,6 @@ fun ExercisesScreen (
     val maxSets = 5
     val notesMaxCharacters = 100
 
-
-
     // user inputs:
     var selectedExercise by remember { mutableStateOf<String?>(null) }
     val exerciseSets = remember { mutableStateListOf(*Array(minSets) { ExerciseSetUserInput() }) }
@@ -68,8 +73,6 @@ fun ExercisesScreen (
     // state specific to display:
     var dropdownExpanded by remember { mutableStateOf(false) }
     var scrollToTop by remember { mutableStateOf(false) }
-
-
 
     fun resetInputs() {
         selectedExercise = trackerState.exercisesForSplitDay.firstOrNull()
@@ -134,7 +137,10 @@ fun ExercisesScreen (
                         horizontalAlignment = Alignment.End
                     ) {
                         Button(
-                            onClick = {},
+                            onClick = {
+                                trackerViewModel.setShowDateInExerciseRecordDisplay(false)
+                                trackerViewModel.retrieveExercisesByDate(trackerState.date.toString())
+                            },
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Text("See all exercises done today")
@@ -198,7 +204,30 @@ fun ExercisesScreen (
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(40.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+
+                item {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Button(
+                            modifier = Modifier.padding(8.dp),
+                            onClick = {
+                                selectedExercise?.let {
+                                    trackerViewModel.setShowDateInExerciseRecordDisplay(true)
+                                    trackerViewModel.retrieveMostRecentWorkouts(it, 1)
+                                }
+                            },
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("See most recent workout for exercise")
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(30.dp))
                 }
 
                 itemsIndexed(exerciseSets) { index, set ->
@@ -219,7 +248,10 @@ fun ExercisesScreen (
                                 exerciseSets.add(ExerciseSetUserInput())
                             },
                             modifier = Modifier
-                                .padding(40.dp)
+                                .padding(
+                                    start = 60.dp,
+                                    end = 60.dp
+                                )
                                 .fillMaxWidth()
                         ) {
                             Text("Add Set")
@@ -273,7 +305,7 @@ fun ExercisesScreen (
                                 )
                             }
                         },
-                        enabled = (trackerState.apiRequestState == APIRequestState.Idle),
+                        enabled = (!trackerState.showLoading),
                         modifier = Modifier
                             .padding(20.dp)
                             .fillMaxWidth()
@@ -283,35 +315,66 @@ fun ExercisesScreen (
                 }
             }
 
-            when (trackerState.apiRequestState) {
-                APIRequestState.Loading -> {
-                    OverlayMenuScreenLoading()
-                }
+            if (trackerState.showLoading) {
+                OverlayPopUpScreenLoading()
+            } else if (trackerState.apiRequestMessage.isNotEmpty()) {
+                OverlayPopUpScreen(text = trackerState.apiRequestMessage) {
+                    val message = trackerState.apiRequestMessage
+                    val actionPair: Pair<String?, (() -> Unit)?> = when {
+                        message.contains(ERROR_FETCHING_EXERCISES_FOR_SPLIT_DAY) ->
+                            "Retry" to { trackerViewModel.retrieveExercisesForSplitDay(trackerState.splitDay) }
 
-                APIRequestState.Success -> {
-                    OverlayMenuScreenWithPopupScreen(
-                        text = "Workout submission successful",
-                        buttonTexts = listOf("Submit another exercise"),
-                        onButtonSelection = {
-                            resetInputs()
-                            trackerViewModel.resetPostRequestState()
-                            scrollToTop = true
+                        message.contains(NO_EXERCISES_FOUND_FOR_SPLIT_DAY) ->
+                            "Close" to { trackerViewModel.clearDisplayValuesFromApi() }
+
+                        message.contains(ERROR_FETCHING_EXERCISES_FOR_DATE) ->
+                            "Retry" to { trackerViewModel.retrieveExercisesByDate(trackerState.date.toString()) }
+
+                        message.contains(NO_EXERCISES_FOUND_FOR_DATE) ->
+                            "Close" to { trackerViewModel.clearDisplayValuesFromApi() }
+
+                        message.contains(ERROR_FETCHING_RECENT_EXERCISES) ->
+                            "Close" to {
+                                selectedExercise?.let {
+                                    trackerViewModel.retrieveMostRecentWorkouts(it, 1)
+                                }
+                            }
+
+                        message.contains(ERROR_SAVING_WORKOUT) ->
+                            "Close" to { trackerViewModel.clearDisplayValuesFromApi() }
+
+                        message.contains(NO_RECENT_WORKOUTS_FOUND_FOR_EXERCISE) ->
+                            "Close" to { trackerViewModel.clearDisplayValuesFromApi() }
+
+                        message.contains(WORKOUT_SUBMISSION_SUCCESSFUL) ->
+                            "Submit another exercise" to {
+                                resetInputs()
+                                trackerViewModel.clearDisplayValuesFromApi()
+                                scrollToTop = true
+                            }
+
+                        else -> null to null
+                    }
+
+                    val (buttonText, onClickAction) = actionPair
+
+                    if (buttonText != null && onClickAction != null) {
+                        Button(onClick = onClickAction) {
+                            Text(buttonText)
                         }
-                    )
+                    }
                 }
-
-                APIRequestState.Error -> {
-                    OverlayMenuScreenWithPopupScreen(
-                        text = "Could not save workout submission",
-                        buttonTexts = listOf("Close"),
-                        onButtonSelection = {
-                            trackerViewModel.resetPostRequestState()
-                        }
+            } else if (trackerState.exerciseRecordsFromApi.isNotEmpty()) {
+                OverlayPopUpScreen(
+                    showCloseButton = true,
+                    onCloseButtonClick = {
+                        trackerViewModel.clearDisplayValuesFromApi()
+                    }
+                ) {
+                    WorkoutRecordsDisplay(
+                        trackerState.exerciseRecordsFromApi,
+                        trackerState.showDateInExerciseRecordDisplay
                     )
-                }
-
-                APIRequestState.Idle -> {
-                    // No overlay
                 }
             }
         }

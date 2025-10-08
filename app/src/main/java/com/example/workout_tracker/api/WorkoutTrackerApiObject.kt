@@ -1,11 +1,9 @@
 package com.example.workout_tracker.api
 
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.awaitResponse
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
@@ -25,44 +23,57 @@ object WorkoutTrackerApiObject {
         .build()
         .create(WorkoutTrackerApi::class.java)
 
-    suspend fun getSplitCategories(): List<String> {
+    suspend fun getSplitCategories(): ApiResponseValue<List<String>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getSplitCategories()
-                if (response.isEmpty()) {
-                    Log.i("WorkoutTrackerAPI", "No split categories found")
-                }
-                response
+                ApiResponseValue(value = response)
             } catch (e: Exception) {
-                Log.e("WorkoutTrackerAPI", "Error fetching split categories", e)
-                emptyList()
+                ApiResponseValue(errorMessage = e.toString())
             }
         }
     }
 
-    suspend fun getExercisesForSplitDay(splitDay: String): List<String> {
+    suspend fun getExercisesForSplitDay(splitDay: String): ApiResponseValue<List<String>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getExercisesForSplitDay(splitDay)
-                if (response.isEmpty()) {
-                    Log.i("WorkoutTrackerAPI", "No exercises found for split day: $splitDay")
-                }
-                response
+                ApiResponseValue(value = response)
             } catch (e: Exception) {
-                Log.e("WorkoutTrackerAPI", "Error fetching exercises", e)
-                emptyList()
+                ApiResponseValue(errorMessage = e.toString())
             }
         }
     }
 
-    suspend fun addWorkout(workout: Workout): Boolean {
+    suspend fun getExercisesByDate(date: String): ApiResponseValue<List<Workout>> {
         return withContext(Dispatchers.IO) {
             try {
-                apiService.addWorkout(workout)
-                true
+                val response = apiService.getWorkoutsByDate(date)
+                ApiResponseValue(value = response)
             } catch (e: Exception) {
-                Log.e("WorkoutTrackerAPI", "Error adding workout", e)
-                false
+                ApiResponseValue(errorMessage = e.toString())
+            }
+        }
+    }
+
+    suspend fun getMostRecentWorkouts(exercise: String, numWorkouts: Int): ApiResponseValue<List<Workout>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.getMostRecentWorkouts(exercise, numWorkouts)
+                ApiResponseValue(value = response)
+            } catch (e: Exception) {
+                ApiResponseValue(errorMessage = e.toString())
+            }
+        }
+    }
+
+    suspend fun addWorkout(workout: Workout): ApiResponseValue<Workout?> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val addedWorkout = apiService.addWorkout(workout)
+                ApiResponseValue(value = addedWorkout)
+            } catch (e: Exception) {
+                ApiResponseValue(errorMessage = e.toString())
             }
         }
     }

@@ -5,10 +5,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.workout_tracker.viewmodel.TrackerViewModel
-import com.example.workout_tracker.screens.DatePickerScreen
-import com.example.workout_tracker.screens.ExercisesScreen
-import com.example.workout_tracker.screens.HomeScreen
-import com.example.workout_tracker.screens.SplitDayScreen
+import com.example.workout_tracker.view.DatePickerScreen
+import com.example.workout_tracker.view.ExercisesScreen
+import com.example.workout_tracker.view.HomeScreen
+import com.example.workout_tracker.view.SplitDayScreen
 
 
 @Composable

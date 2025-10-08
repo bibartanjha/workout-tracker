@@ -1,4 +1,4 @@
-package com.example.workout_tracker.screens
+package com.example.workout_tracker.view
 
 import PopUpScreen
 import PopUpScreenButton
@@ -30,23 +30,27 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            val buttonTexts = listOf("New Day", "See Past Records")
+            val buttonTexts = listOf("New Entry", "See Past Records")
 
-            PopUpScreen("Main Menu", Color.LightGray, Color.Black) {
-                for (buttonText in buttonTexts) {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    PopUpScreenButton(
-                        text = buttonText,
-                        bgColor = Color(red = 24, green = 95, blue = 150, alpha = 255),
-                        onButtonSelection = {
-                            if (it == "New Day") {
-                                onOptionSelected(Routes.DATE_PICKER_SCREEN)
-                            } else {
+            PopUpScreen(
+                text = "Main Menu",
+                cardBGColor = Color.LightGray,
+                remainingPopUpScreenContent = {
+                    for (buttonText in buttonTexts) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        PopUpScreenButton(
+                            text = buttonText,
+                            bgColor = Color(red = 24, green = 95, blue = 150, alpha = 255),
+                            onButtonSelection = {
+                                if (it == "New Entry") {
+                                    onOptionSelected(Routes.DATE_PICKER_SCREEN)
+                                } else {
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
-            }
+            )
         }
 
     }

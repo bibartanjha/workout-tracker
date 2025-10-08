@@ -1,4 +1,4 @@
-package com.example.workout_tracker.screens
+package com.example.workout_tracker.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
