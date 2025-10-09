@@ -7,8 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.workout_tracker.viewmodel.TrackerViewModel
 import com.example.workout_tracker.navigation.NavigationGraph
+import com.example.workout_tracker.viewmodel.TrackerViewModel
 
 
 class MainActivity : ComponentActivity() {

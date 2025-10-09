@@ -11,7 +11,7 @@ object WorkoutTrackerApiObject {
     private const val BASE_URL = "https://workout-tracker-api-ntq0.onrender.com/"
 
     val okHttpClient = OkHttpClient.Builder()
-        .connectTimeout(60, TimeUnit.SECONDS)  // Allow slow startup
+        .connectTimeout(60, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .writeTimeout(60, TimeUnit.SECONDS)
         .build()
@@ -56,7 +56,10 @@ object WorkoutTrackerApiObject {
         }
     }
 
-    suspend fun getMostRecentWorkouts(exercise: String, numWorkouts: Int): ApiResponseValue<List<Workout>> {
+    suspend fun getMostRecentWorkouts(
+        exercise: String,
+        numWorkouts: Int
+    ): ApiResponseValue<List<Workout>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getMostRecentWorkouts(exercise, numWorkouts)

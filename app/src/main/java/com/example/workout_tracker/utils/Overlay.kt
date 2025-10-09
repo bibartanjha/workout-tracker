@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.workout_tracker.view.components.ExerciseRecordDatePicker
+import java.time.LocalDate
 
 @Composable
 fun OverlayPopUpScreen(
@@ -24,15 +26,7 @@ fun OverlayPopUpScreen(
     onCloseButtonClick: () -> Unit = {},
     content: @Composable () -> Unit = {}
 ) {
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
-    val screenHeight = configuration.screenHeightDp
-
-    OverlayBackground(
-        screenColor = Color.Black,
-        screenWidth = screenWidth.dp,
-        screenHeight = screenHeight.dp
-    ) {
+    OverlayBackground {
         PopUpScreen(text, cardBGColor, textColor, showCloseButton, onCloseButtonClick) {
             content()
         }
@@ -41,28 +35,28 @@ fun OverlayPopUpScreen(
 
 @Composable
 fun OverlayPopUpScreenLoading() {
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
-    val screenHeight = configuration.screenHeightDp
-
-    OverlayBackground(
-        screenColor = Color.Black,
-        screenWidth = screenWidth.dp,
-        screenHeight = screenHeight.dp
-    ) {
+    OverlayBackground {
         CircularProgressIndicator(
-            color = Color.White,
-            strokeWidth = 4.dp
+            color = Color.White, strokeWidth = 4.dp
         )
     }
 }
 
 @Composable
+fun OverlayDatePicker(
+    onDateSelected: (LocalDate) -> Unit, onDismiss: () -> Unit, initialDate: LocalDate
+) {
+    OverlayBackground {
+        ExerciseRecordDatePicker(onDateSelected, onDismiss, initialDate)
+    }
+}
+
+@Composable
 fun OverlayBackground(
-    screenColor: Color,
+    screenColor: Color = Color.Black,
     screenShape: Shape = RectangleShape,
-    screenWidth: Dp,
-    screenHeight: Dp,
+    screenWidth: Dp = LocalConfiguration.current.screenWidthDp.dp,
+    screenHeight: Dp = LocalConfiguration.current.screenHeightDp.dp,
     content: @Composable () -> Unit = {}
 ) {
     Box(

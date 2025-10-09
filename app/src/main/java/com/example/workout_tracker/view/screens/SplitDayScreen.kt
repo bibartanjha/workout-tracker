@@ -1,4 +1,4 @@
-package com.example.workout_tracker.view
+package com.example.workout_tracker.view.screens
 
 import PopUpScreen
 import PopUpScreenButton
@@ -28,14 +28,16 @@ import com.example.workout_tracker.viewmodel.TrackerViewModel
 
 
 @Composable
-fun SplitDayScreen (
+fun SplitDayScreen(
     trackerViewModel: TrackerViewModel,
     splitDaySelected: () -> Unit
 ) {
     val trackerState by trackerViewModel.trackerState.collectAsState()
 
     LaunchedEffect(Unit) {
-        trackerViewModel.retrieveSplitCategories()
+        if (trackerState.splitCategories.isEmpty()) {
+            trackerViewModel.retrieveSplitCategories()
+        }
     }
 
     Surface(
@@ -43,14 +45,12 @@ fun SplitDayScreen (
         color = Color(red = 255, green = 203, blue = 90)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             PopUpScreen(
                 text = "Choose Split Day",
-                cardBGColor = Color.LightGray,
                 remainingPopUpScreenContent = {
                     trackerState.splitCategories.forEach { buttonText ->
                         Spacer(modifier = Modifier.height(20.dp))
@@ -67,7 +67,7 @@ fun SplitDayScreen (
             )
         }
 
-        if (trackerState.showLoading) {
+        if (trackerState.apiResponseLoading) {
             OverlayPopUpScreenLoading()
         } else if (trackerState.apiRequestMessage.isNotEmpty()) {
             OverlayPopUpScreen(text = trackerState.apiRequestMessage) {
@@ -96,7 +96,7 @@ fun SplitDayScreen (
 @Preview
 @Composable
 fun SplitDayScreenPreview() {
-    SplitDayScreen (
+    SplitDayScreen(
         trackerViewModel = viewModel(),
         splitDaySelected = {}
     )

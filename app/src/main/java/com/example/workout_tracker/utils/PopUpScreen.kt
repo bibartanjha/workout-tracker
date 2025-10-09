@@ -36,15 +36,13 @@ fun PopUpScreen(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Card(
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier
-                .padding(24.dp),
+            modifier = Modifier.padding(24.dp),
             colors = CardDefaults.cardColors(containerColor = cardBGColor),
             elevation = CardDefaults.cardElevation(4.dp),
 

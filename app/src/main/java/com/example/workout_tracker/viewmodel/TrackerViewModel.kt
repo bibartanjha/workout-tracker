@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.workout_tracker.api.Workout
 import com.example.workout_tracker.api.WorkoutTrackerApiObject
-import com.example.workout_tracker.utils.ExerciseSetUserInput
 import com.example.workout_tracker.model.TrackerState
 import com.example.workout_tracker.utils.ErrorMessages.ERROR_FETCHING_EXERCISES_FOR_DATE
 import com.example.workout_tracker.utils.ErrorMessages.ERROR_FETCHING_EXERCISES_FOR_SPLIT_DAY
@@ -16,27 +15,19 @@ import com.example.workout_tracker.utils.ErrorMessages.NO_EXERCISES_FOUND_FOR_SP
 import com.example.workout_tracker.utils.ErrorMessages.NO_RECENT_WORKOUTS_FOUND_FOR_EXERCISE
 import com.example.workout_tracker.utils.ErrorMessages.NO_SPLIT_CATEGORIES_FOUND
 import com.example.workout_tracker.utils.ErrorMessages.WORKOUT_SUBMISSION_SUCCESSFUL
+import com.example.workout_tracker.utils.ExerciseSetUserInput
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 class TrackerViewModel: ViewModel() {
 
     private val _trackerState = MutableStateFlow(TrackerState())
     val trackerState: StateFlow<TrackerState> = _trackerState.asStateFlow()
 
-    fun setDate(selectedDate: LocalDate) {
-        _trackerState.value = _trackerState.value.copy(date = selectedDate)
-    }
-
     fun setSplitDay(selectedSplitDay: String) {
         _trackerState.value = _trackerState.value.copy(splitDay = selectedSplitDay)
-    }
-
-    fun setShowDateInExerciseRecordDisplay(showDate: Boolean) {
-        _trackerState.value = _trackerState.value.copy(showDateInExerciseRecordDisplay = showDate)
     }
 
     fun clearDisplayValuesFromApi() {
@@ -48,7 +39,7 @@ class TrackerViewModel: ViewModel() {
 
     fun retrieveSplitCategories() {
         viewModelScope.launch {
-            _trackerState.value = _trackerState.value.copy(showLoading = true)
+            _trackerState.value = _trackerState.value.copy(apiResponseLoading = true)
 
             clearDisplayValuesFromApi()
 
@@ -68,13 +59,13 @@ class TrackerViewModel: ViewModel() {
                 }
             }
 
-            _trackerState.value = _trackerState.value.copy(showLoading = false)
+            _trackerState.value = _trackerState.value.copy(apiResponseLoading = false)
         }
     }
 
     fun retrieveExercisesForSplitDay(selectedSplitDay: String) {
         viewModelScope.launch {
-            _trackerState.value = _trackerState.value.copy(showLoading = true)
+            _trackerState.value = _trackerState.value.copy(apiResponseLoading = true)
 
             clearDisplayValuesFromApi()
 
@@ -89,17 +80,18 @@ class TrackerViewModel: ViewModel() {
                     _trackerState.value =
                         _trackerState.value.copy(apiRequestMessage = "$NO_EXERCISES_FOUND_FOR_SPLIT_DAY: $selectedSplitDay")
                 } else {
-                    _trackerState.value = _trackerState.value.copy(exercisesForSplitDay = exercisesForSplitDayResponse.value)
+                    _trackerState.value =
+                        _trackerState.value.copy(exercisesForSplitDay = exercisesForSplitDayResponse.value)
                 }
             }
 
-            _trackerState.value = _trackerState.value.copy(showLoading = false)
+            _trackerState.value = _trackerState.value.copy(apiResponseLoading = false)
         }
     }
 
     fun retrieveExercisesByDate(date: String) {
         viewModelScope.launch {
-            _trackerState.value = _trackerState.value.copy(showLoading = true)
+            _trackerState.value = _trackerState.value.copy(apiResponseLoading = true)
 
             clearDisplayValuesFromApi()
 
@@ -114,21 +106,23 @@ class TrackerViewModel: ViewModel() {
                     _trackerState.value =
                         _trackerState.value.copy(apiRequestMessage = "$NO_EXERCISES_FOUND_FOR_DATE: $date")
                 } else {
-                    _trackerState.value = _trackerState.value.copy(exerciseRecordsFromApi = exercisesByDateResponse.value)
+                    _trackerState.value =
+                        _trackerState.value.copy(exerciseRecordsFromApi = exercisesByDateResponse.value)
                 }
             }
 
-            _trackerState.value = _trackerState.value.copy(showLoading = false)
+            _trackerState.value = _trackerState.value.copy(apiResponseLoading = false)
         }
     }
 
     fun retrieveMostRecentWorkouts(exercise: String, numWorkouts: Int) {
         viewModelScope.launch {
-            _trackerState.value = _trackerState.value.copy(showLoading = true)
+            _trackerState.value = _trackerState.value.copy(apiResponseLoading = true)
 
             clearDisplayValuesFromApi()
 
-            val mostRecentWorkoutsResponse = WorkoutTrackerApiObject.getMostRecentWorkouts(exercise, numWorkouts)
+            val mostRecentWorkoutsResponse =
+                WorkoutTrackerApiObject.getMostRecentWorkouts(exercise, numWorkouts)
 
             if (mostRecentWorkoutsResponse.errorMessage.isNotEmpty()) {
                 _trackerState.value = _trackerState.value.copy(
@@ -139,11 +133,12 @@ class TrackerViewModel: ViewModel() {
                     _trackerState.value =
                         _trackerState.value.copy(apiRequestMessage = "$NO_RECENT_WORKOUTS_FOUND_FOR_EXERCISE: $exercise")
                 } else {
-                    _trackerState.value = _trackerState.value.copy(exerciseRecordsFromApi = mostRecentWorkoutsResponse.value)
+                    _trackerState.value =
+                        _trackerState.value.copy(exerciseRecordsFromApi = mostRecentWorkoutsResponse.value)
                 }
             }
 
-            _trackerState.value = _trackerState.value.copy(showLoading = false)
+            _trackerState.value = _trackerState.value.copy(apiResponseLoading = false)
         }
     }
 
@@ -161,19 +156,21 @@ class TrackerViewModel: ViewModel() {
         )
 
         viewModelScope.launch {
-            _trackerState.value = _trackerState.value.copy(showLoading = true)
+            _trackerState.value = _trackerState.value.copy(apiResponseLoading = true)
 
             clearDisplayValuesFromApi()
 
             val addResultResponse = WorkoutTrackerApiObject.addWorkout(workout)
 
             if (addResultResponse.errorMessage.isNotEmpty()) {
-                _trackerState.value = _trackerState.value.copy(apiRequestMessage = "$ERROR_SAVING_WORKOUT: ${addResultResponse.errorMessage}")
+                _trackerState.value =
+                    _trackerState.value.copy(apiRequestMessage = "$ERROR_SAVING_WORKOUT: ${addResultResponse.errorMessage}")
             } else {
-                _trackerState.value = _trackerState.value.copy(apiRequestMessage = WORKOUT_SUBMISSION_SUCCESSFUL)
+                _trackerState.value =
+                    _trackerState.value.copy(apiRequestMessage = WORKOUT_SUBMISSION_SUCCESSFUL)
             }
 
-            _trackerState.value = _trackerState.value.copy(showLoading = false)
+            _trackerState.value = _trackerState.value.copy(apiResponseLoading = false)
         }
     }
 }

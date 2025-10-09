@@ -27,8 +27,7 @@ fun PopUpScreenButton(
     val screenWidth = configuration.screenWidthDp
     Card(
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier
-            .padding(24.dp),
+        modifier = Modifier.padding(24.dp),
         colors = CardDefaults.cardColors(containerColor = bgColor),
         elevation = CardDefaults.cardElevation(4.dp),
 

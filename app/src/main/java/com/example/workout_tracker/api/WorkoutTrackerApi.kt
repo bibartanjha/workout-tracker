@@ -29,6 +29,4 @@ interface WorkoutTrackerApi {
     suspend fun addWorkout(
         @Body workout: Workout
     ): Workout
-
-
 }

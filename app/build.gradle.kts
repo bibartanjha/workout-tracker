@@ -80,4 +80,6 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
+    implementation(libs.androidx.material.icons.extended)
+
 }

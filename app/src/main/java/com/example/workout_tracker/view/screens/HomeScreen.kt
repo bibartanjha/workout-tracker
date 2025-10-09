@@ -1,4 +1,4 @@
-package com.example.workout_tracker.view
+package com.example.workout_tracker.view.screens
 
 import PopUpScreen
 import PopUpScreenButton
@@ -25,8 +25,7 @@ fun HomeScreen(
         color = Color(red = 255, green = 203, blue = 90)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -34,7 +33,6 @@ fun HomeScreen(
 
             PopUpScreen(
                 text = "Main Menu",
-                cardBGColor = Color.LightGray,
                 remainingPopUpScreenContent = {
                     for (buttonText in buttonTexts) {
                         Spacer(modifier = Modifier.height(20.dp))
@@ -43,7 +41,7 @@ fun HomeScreen(
                             bgColor = Color(red = 24, green = 95, blue = 150, alpha = 255),
                             onButtonSelection = {
                                 if (it == "New Entry") {
-                                    onOptionSelected(Routes.DATE_PICKER_SCREEN)
+                                    onOptionSelected(Routes.SPLIT_DAY_SCREEN)
                                 } else {
                                 }
                             }

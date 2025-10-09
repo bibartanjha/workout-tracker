@@ -1,7 +1,6 @@
-package com.example.workout_tracker.view
+package com.example.workout_tracker.view.components
 
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,9 +14,8 @@ import androidx.compose.ui.unit.sp
 import com.example.workout_tracker.api.Workout
 
 @Composable
-fun WorkoutRecordsDisplay (
-    listOfWorkouts: List<Workout>,
-    showDate: Boolean
+fun WorkoutRecordsDisplay(
+    listOfWorkouts: List<Workout>, showDate: Boolean
 ) {
     LazyColumn {
         for (workout in listOfWorkouts) {
